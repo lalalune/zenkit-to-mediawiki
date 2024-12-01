@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# MediaWiki API URL
+apiUrl="http://localhost:8080/w/api.php"
+
+# Login credentials
+username="Admin"
+password="dockerpass"
+
+# Step 1: Get a login token
+login_token=$(curl -s "$apiUrl?action=query&meta=tokens&type=login&format=json" | jq -r '.query.tokens.logintoken')
+
+# Step 2: Log in using the token and credentials
+login_response=$(curl -s \
+  --data "action=clientlogin&username=$username&password=$password&loginreturnurl=http://localhost:8080&logintoken=$login_token&format=json" \
+  "$apiUrl")
+
+echo "Login response: $login_response"
+
+# Optionally, check for success or failure in the response
+if echo "$login_response" | grep -q '"status":"PASS"'; then
+  echo "Login successful."
+else
+  echo "Login failed."
+fi
